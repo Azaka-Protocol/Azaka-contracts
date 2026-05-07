@@ -1,0 +1,11 @@
+src/
+tests/
+*.test.ts
+*.spec.ts
+tsconfig.json
+vitest.config.ts
+.eslintrc.json
+node_modules/
+coverage/
+.env
+.env.*
