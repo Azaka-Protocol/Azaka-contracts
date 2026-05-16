@@ -1,7 +1,7 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, Address, Env, String, Vec, Symbol, symbol_short,
+    contract, contractimpl, contracterror, contracttype, symbol_short, Address, Env, Vec,
 };
 
 /// Trade status in the LC lifecycle
@@ -25,6 +25,19 @@ pub enum DocumentType {
     InspectionCertificate,
     PhytosanitaryCertificate,
     CustomsDeclaration,
+}
+
+/// Parameters for creating a new trade
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct CreateTradeParams {
+    pub exporter: Address,
+    pub importer: Address,
+    pub issuing_bank: Address,
+    pub stablecoin_asset: Address,
+    pub amount: i128,
+    pub required_docs: Vec<DocumentType>,
+    pub expiry_ledger: u32,
 }
 
 /// Trade record
@@ -56,8 +69,9 @@ enum DataKey {
 }
 
 /// Trade contract errors
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[repr(u32)]
 pub enum TradeError {
     NotAuthorized = 1,
     TradeNotFound = 2,
@@ -77,61 +91,72 @@ impl TradeContract {
         if env.storage().instance().has(&DataKey::EscrowContract) {
             panic!("Already initialized");
         }
-        env.storage().instance().set(&DataKey::EscrowContract, &escrow_contract);
-        env.storage().instance().set(&DataKey::DocumentContract, &document_contract);
+        env.storage()
+            .instance()
+            .set(&DataKey::EscrowContract, &escrow_contract);
+        env.storage()
+            .instance()
+            .set(&DataKey::DocumentContract, &document_contract);
         env.storage().instance().set(&DataKey::TradeCounter, &0u64);
     }
 
     /// Create a new trade (Letter of Credit)
-    pub fn create_trade(
-        env: Env,
-        exporter: Address,
-        importer: Address,
-        issuing_bank: Address,
-        stablecoin_asset: Address,
-        amount: i128,
-        required_docs: Vec<DocumentType>,
-        expiry_ledger: u32,
-    ) -> u64 {
-        issuing_bank.require_auth();
+    pub fn create_trade(env: Env, params: CreateTradeParams) -> u64 {
+        params.issuing_bank.require_auth();
 
-        let mut counter: u64 = env.storage().instance().get(&DataKey::TradeCounter).unwrap_or(0);
+        let mut counter: u64 = env
+            .storage()
+            .instance()
+            .get(&DataKey::TradeCounter)
+            .unwrap_or(0);
         counter += 1;
 
         let trade = Trade {
             trade_id: counter,
-            exporter: exporter.clone(),
-            importer,
-            issuing_bank,
+            exporter: params.exporter.clone(),
+            importer: params.importer,
+            issuing_bank: params.issuing_bank,
             confirming_bank: None,
-            stablecoin_asset,
-            amount,
-            required_docs,
-            expiry_ledger,
+            stablecoin_asset: params.stablecoin_asset,
+            amount: params.amount,
+            required_docs: params.required_docs,
+            expiry_ledger: params.expiry_ledger,
             status: TradeStatus::PendingEscrow,
             created_ledger: env.ledger().sequence(),
         };
 
-        env.storage().instance().set(&DataKey::TradeCounter, &counter);
-        env.storage().persistent().set(&DataKey::Trade(counter), &trade);
+        env.storage()
+            .instance()
+            .set(&DataKey::TradeCounter, &counter);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Trade(counter), &trade);
 
         // Add to exporter's trade list
-        let exporter_key = DataKey::ExporterTrades(exporter.clone());
-        let mut exporter_trades: Vec<u64> = env.storage().persistent().get(&exporter_key).unwrap_or(Vec::new(&env));
+        let exporter_key = DataKey::ExporterTrades(params.exporter.clone());
+        let mut exporter_trades: Vec<u64> = env
+            .storage()
+            .persistent()
+            .get(&exporter_key)
+            .unwrap_or(Vec::new(&env));
         exporter_trades.push_back(counter);
-        env.storage().persistent().set(&exporter_key, &exporter_trades);
+        env.storage()
+            .persistent()
+            .set(&exporter_key, &exporter_trades);
 
         // Emit event
-        env.events().publish(
-            (symbol_short!("create"), counter),
-            trade,
-        );
+        env.events()
+            .publish((symbol_short!("create"), counter), trade);
 
         counter
     }
 
     /// Confirm trade by confirming bank
-    pub fn confirm_trade(env: Env, trade_id: u64, confirming_bank: Address) -> Result<(), TradeError> {
+    pub fn confirm_trade(
+        env: Env,
+        trade_id: u64,
+        confirming_bank: Address,
+    ) -> Result<(), TradeError> {
         confirming_bank.require_auth();
 
         let key = DataKey::Trade(trade_id);
@@ -150,10 +175,8 @@ impl TradeContract {
         env.storage().persistent().set(&key, &trade);
 
         // Emit event
-        env.events().publish(
-            (symbol_short!("confirm"), trade_id),
-            confirming_bank,
-        );
+        env.events()
+            .publish((symbol_short!("confirm"), trade_id), confirming_bank);
 
         Ok(())
     }
@@ -161,7 +184,11 @@ impl TradeContract {
     /// Update trade status to DocumentsPending after escrow deposit
     /// Called by escrow contract
     pub fn mark_escrow_deposited(env: Env, trade_id: u64) -> Result<(), TradeError> {
-        let escrow_contract: Address = env.storage().instance().get(&DataKey::EscrowContract).unwrap();
+        let escrow_contract: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::EscrowContract)
+            .unwrap();
         escrow_contract.require_auth();
 
         let key = DataKey::Trade(trade_id);
@@ -179,10 +206,8 @@ impl TradeContract {
         env.storage().persistent().set(&key, &trade);
 
         // Emit event
-        env.events().publish(
-            (symbol_short!("escrow"), trade_id),
-            (),
-        );
+        env.events()
+            .publish((symbol_short!("escrow"), trade_id), ());
 
         Ok(())
     }
@@ -211,10 +236,8 @@ impl TradeContract {
         env.storage().persistent().set(&key, &trade);
 
         // Emit event
-        env.events().publish(
-            (symbol_short!("cancel"), trade_id),
-            caller,
-        );
+        env.events()
+            .publish((symbol_short!("cancel"), trade_id), caller);
 
         Ok(())
     }
@@ -240,10 +263,8 @@ impl TradeContract {
         env.storage().persistent().set(&key, &trade);
 
         // Emit event
-        env.events().publish(
-            (symbol_short!("expire"), trade_id),
-            (),
-        );
+        env.events()
+            .publish((symbol_short!("expire"), trade_id), ());
 
         Ok(())
     }
@@ -278,10 +299,8 @@ impl TradeContract {
         env.storage().persistent().set(&key, &trade);
 
         // Emit event
-        env.events().publish(
-            (symbol_short!("settle"), trade_id),
-            trade.exporter.clone(),
-        );
+        env.events()
+            .publish((symbol_short!("settle"), trade_id), trade.exporter.clone());
 
         // TODO: Automatically trigger escrow release via cross-contract call
         // let escrow_contract: Address = env.storage().instance().get(&DataKey::EscrowContract).unwrap();
@@ -302,14 +321,17 @@ impl TradeContract {
     /// List all trades for an exporter
     pub fn list_trades_by_exporter(env: Env, exporter: Address) -> Vec<u64> {
         let key = DataKey::ExporterTrades(exporter);
-        env.storage().persistent().get(&key).unwrap_or(Vec::new(&env))
+        env.storage()
+            .persistent()
+            .get(&key)
+            .unwrap_or(Vec::new(&env))
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::{testutils::Address as _, Env, String};
+    use soroban_sdk::{testutils::Address as _, Env};
 
     #[test]
     fn test_create_and_confirm_trade() {
@@ -333,15 +355,17 @@ mod test {
         required_docs.push_back(DocumentType::BillOfLading);
         required_docs.push_back(DocumentType::InspectionCertificate);
 
-        let trade_id = client.create_trade(
-            &exporter,
-            &importer,
-            &issuing_bank,
-            &stablecoin,
-            &50000000000,
-            &required_docs,
-            &1000000,
-        );
+        let params = CreateTradeParams {
+            exporter: exporter.clone(),
+            importer: importer.clone(),
+            issuing_bank: issuing_bank.clone(),
+            stablecoin_asset: stablecoin.clone(),
+            amount: 50000000000,
+            required_docs: required_docs.clone(),
+            expiry_ledger: 1000000,
+        };
+
+        let trade_id = client.create_trade(&params);
 
         assert_eq!(trade_id, 1);
 
@@ -373,15 +397,17 @@ mod test {
 
         let required_docs = Vec::new(&env);
 
-        let trade_id = client.create_trade(
-            &exporter,
-            &importer,
-            &issuing_bank,
-            &stablecoin,
-            &50000000000,
-            &required_docs,
-            &1000000,
-        );
+        let params = CreateTradeParams {
+            exporter: exporter.clone(),
+            importer: importer.clone(),
+            issuing_bank: issuing_bank.clone(),
+            stablecoin_asset: stablecoin.clone(),
+            amount: 50000000000,
+            required_docs: required_docs.clone(),
+            expiry_ledger: 1000000,
+        };
+
+        let trade_id = client.create_trade(&params);
 
         client.cancel_trade(&trade_id, &exporter);
 
@@ -408,25 +434,29 @@ mod test {
 
         let required_docs = Vec::new(&env);
 
-        let trade_id1 = client.create_trade(
-            &exporter,
-            &importer,
-            &issuing_bank,
-            &stablecoin,
-            &50000000000,
-            &required_docs,
-            &1000000,
-        );
+        let params1 = CreateTradeParams {
+            exporter: exporter.clone(),
+            importer: importer.clone(),
+            issuing_bank: issuing_bank.clone(),
+            stablecoin_asset: stablecoin.clone(),
+            amount: 50000000000,
+            required_docs: required_docs.clone(),
+            expiry_ledger: 1000000,
+        };
 
-        let trade_id2 = client.create_trade(
-            &exporter,
-            &importer,
-            &issuing_bank,
-            &stablecoin,
-            &30000000000,
-            &required_docs,
-            &1000000,
-        );
+        let trade_id1 = client.create_trade(&params1);
+
+        let params2 = CreateTradeParams {
+            exporter: exporter.clone(),
+            importer: importer.clone(),
+            issuing_bank: issuing_bank.clone(),
+            stablecoin_asset: stablecoin.clone(),
+            amount: 30000000000,
+            required_docs: required_docs.clone(),
+            expiry_ledger: 1000000,
+        };
+
+        let trade_id2 = client.create_trade(&params2);
 
         let trades = client.list_trades_by_exporter(&exporter);
         assert_eq!(trades.len(), 2);

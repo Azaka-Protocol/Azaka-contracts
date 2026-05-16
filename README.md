@@ -4,7 +4,7 @@
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Stellar](https://img.shields.io/badge/Stellar-Soroban-blue.svg)](https://stellar.org/soroban)
-[![Rust](https://img.shields.io/badge/rust-1.81.0-orange.svg)](https://www.rust-lang.org/)
+[![Rust](https://img.shields.io/badge/rust-1.95.0-orange.svg)](https://www.rust-lang.org/)
 [![Status](https://img.shields.io/badge/status-alpha-yellow.svg)](https://github.com/yourusername/azaka)
 
 Azaka digitises the Letter of Credit process for small exporters. An importer locks payment into a smart contract escrow at deal creation. When authorised third parties (freight forwarders, inspection companies, port authorities) submit and sign the required shipping documents on-chain, the escrow releases payment automatically to the exporter in stablecoins — cutting settlement from 90 days to hours and eliminating correspondent bank fees.
@@ -60,13 +60,63 @@ azaka/
 ├── README.md
 ├── ROADMAP.md                # Development roadmap
 └── TODO.md                   # Task list
+``` Trade -->|Trigger Release| Escrow
+    
+    Escrow <-->|Transfer| USDC
+    Escrow -->|Pay Out| Exporter
+    
+    style Registry fill:#e1f5ff
+    style Trade fill:#fff4e1
+    style Document fill:#f0e1ff
+    style Escrow fill:#e1ffe1
+```
+
+### Trade Flow Sequence
+
+```mermaid
+sequenceDiagram
+    participant Imp as Importer
+    participant IB as Issuing Bank
+    participant TC as Trade Contract
+    participant EC as Escrow Contract
+    participant DC as Document Contract
+    participant FF as Freight Forwarder
+    participant PA as Port Authority
+    participant Exp as Exporter
+    
+    IB->>TC: 1. Create Trade
+    Note over TC: Status: PendingEscrow
+    
+    IB->>TC: 2. Confirm Trade
+    Note over TC: Status: Active
+    
+    Imp->>EC: 3. Deposit USDC
+    EC->>TC: 4. Mark Escrow Deposited
+    Note over TC: Status: DocumentsPending
+    
+    Exp->>Exp: 5. Ship Goods
+    
+    FF->>DC: 6. Submit Bill of Lading
+    PA->>DC: 7. Sign Bill of Lading
+    Note over DC: Document Verified ✓
+    
+    FF->>DC: 8. Submit Other Docs
+    PA->>DC: 9. Sign Other Docs
+    Note over DC: All Docs Verified ✓
+    
+    TC->>DC: 10. Check All Docs Verified?
+    DC-->>TC: Yes
+    
+    TC->>EC: 11. Release Funds
+    EC->>Exp: 12. Transfer USDC
+    Note over TC: Status: Settled
 ```
 
 ## Quickstart
 
 ### Prerequisites
 
-- Rust 1.81.0+ with `wasm32-unknown-unknown` target
+- Rust 1.95.0+ with `wasm32-unknown-unknown` target
 - Stellar CLI (`cargo install --locked stellar-cli`)
 - Node.js 18+ (for SDK and seed script)
 

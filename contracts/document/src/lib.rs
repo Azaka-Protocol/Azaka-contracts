@@ -1,7 +1,7 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, Address, BytesN, Env, String, Vec, Symbol, symbol_short,
+    contract, contractimpl, contracterror, contracttype, symbol_short, Address, BytesN, Env, String, Vec,
 };
 
 /// Document type in trade finance
@@ -39,8 +39,9 @@ enum DataKey {
 }
 
 /// Document contract errors
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[repr(u32)]
 pub enum DocumentError {
     NotAuthorized = 1,
     DocumentNotFound = 2,
@@ -59,14 +60,31 @@ impl DocumentContract {
         if env.storage().instance().has(&DataKey::RegistryContract) {
             panic!("Already initialized");
         }
-        env.storage().instance().set(&DataKey::RegistryContract, &registry_contract);
-        
+        env.storage()
+            .instance()
+            .set(&DataKey::RegistryContract, &registry_contract);
+
         // Set default required signatures for each document type
-        env.storage().instance().set(&DataKey::RequiredSignatures(DocumentType::BillOfLading), &2u32);
-        env.storage().instance().set(&DataKey::RequiredSignatures(DocumentType::CertificateOfOrigin), &2u32);
-        env.storage().instance().set(&DataKey::RequiredSignatures(DocumentType::InspectionCertificate), &2u32);
-        env.storage().instance().set(&DataKey::RequiredSignatures(DocumentType::PhytosanitaryCertificate), &2u32);
-        env.storage().instance().set(&DataKey::RequiredSignatures(DocumentType::CustomsDeclaration), &2u32);
+        env.storage().instance().set(
+            &DataKey::RequiredSignatures(DocumentType::BillOfLading),
+            &2u32,
+        );
+        env.storage().instance().set(
+            &DataKey::RequiredSignatures(DocumentType::CertificateOfOrigin),
+            &2u32,
+        );
+        env.storage().instance().set(
+            &DataKey::RequiredSignatures(DocumentType::InspectionCertificate),
+            &2u32,
+        );
+        env.storage().instance().set(
+            &DataKey::RequiredSignatures(DocumentType::PhytosanitaryCertificate),
+            &2u32,
+        );
+        env.storage().instance().set(
+            &DataKey::RequiredSignatures(DocumentType::CustomsDeclaration),
+            &2u32,
+        );
     }
 
     /// Submit a document hash and metadata
@@ -79,16 +97,16 @@ impl DocumentContract {
         metadata_uri: String,
     ) -> Result<(), DocumentError> {
         let submitter = env.current_contract_address();
-        
+
         // TODO: Implement authorization check via registry contract
         // let registry_contract: Address = env.storage().instance().get(&DataKey::RegistryContract).unwrap();
         // let authorized = registry_contract.is_authorized(submitter, get_required_participant_type(doc_type));
         // if !authorized {
         //     return Err(DocumentError::NotAuthorized);
         // }
-        
+
         let key = DataKey::Document(trade_id, doc_type.clone());
-        
+
         if env.storage().persistent().has(&key) {
             return Err(DocumentError::DocumentAlreadyExists);
         }
@@ -138,7 +156,7 @@ impl DocumentContract {
         signer.require_auth();
 
         let key = DataKey::Document(trade_id, doc_type.clone());
-        
+
         let mut document = env
             .storage()
             .persistent()
@@ -168,10 +186,8 @@ impl DocumentContract {
         );
 
         if document.verified {
-            env.events().publish(
-                (symbol_short!("ver_doc"), trade_id, doc_type),
-                (),
-            );
+            env.events()
+                .publish((symbol_short!("ver_doc"), trade_id, doc_type), ());
         }
 
         Ok(())
@@ -180,7 +196,7 @@ impl DocumentContract {
     /// Verify if a document has all required signatures
     pub fn verify_document(env: Env, trade_id: u64, doc_type: DocumentType) -> bool {
         let key = DataKey::Document(trade_id, doc_type);
-        
+
         if let Some(document) = env.storage().persistent().get::<DataKey, Document>(&key) {
             document.verified
         } else {
@@ -195,7 +211,7 @@ impl DocumentContract {
         doc_type: DocumentType,
     ) -> Result<Document, DocumentError> {
         let key = DataKey::Document(trade_id, doc_type);
-        
+
         env.storage()
             .persistent()
             .get::<DataKey, Document>(&key)
@@ -203,11 +219,7 @@ impl DocumentContract {
     }
 
     /// Check if all required documents for a trade are verified
-    pub fn all_docs_verified(
-        env: Env,
-        trade_id: u64,
-        required_docs: Vec<DocumentType>,
-    ) -> bool {
+    pub fn all_docs_verified(env: Env, trade_id: u64, required_docs: Vec<DocumentType>) -> bool {
         for doc_type in required_docs.iter() {
             if !Self::verify_document(env.clone(), trade_id, doc_type) {
                 return false;
@@ -220,7 +232,7 @@ impl DocumentContract {
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::{testutils::Address as _, Env, String, BytesN};
+    use soroban_sdk::{testutils::Address as _, BytesN, Env, String};
 
     #[test]
     fn test_submit_and_sign_document() {
@@ -229,7 +241,7 @@ mod test {
         let client = DocumentContractClient::new(&env, &contract_id);
 
         let registry = Address::generate(&env);
-        let submitter = Address::generate(&env);
+        let _submitter = Address::generate(&env);
         let signer = Address::generate(&env);
 
         env.mock_all_auths();
@@ -237,7 +249,7 @@ mod test {
         client.initialize(&registry);
 
         let doc_hash = BytesN::from_array(&env, &[1u8; 32]);
-        
+
         client.submit_document(
             &1,
             &DocumentType::BillOfLading,
@@ -266,7 +278,7 @@ mod test {
         client.initialize(&registry);
 
         let doc_hash = BytesN::from_array(&env, &[1u8; 32]);
-        
+
         // Submit two documents
         client.submit_document(
             &1,
@@ -274,7 +286,7 @@ mod test {
             &doc_hash,
             &String::from_str(&env, "ipfs://QmTest1"),
         );
-        
+
         client.submit_document(
             &1,
             &DocumentType::InspectionCertificate,

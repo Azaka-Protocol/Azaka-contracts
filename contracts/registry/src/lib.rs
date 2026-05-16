@@ -1,6 +1,8 @@
 #![no_std]
 
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String, Symbol, symbol_short};
+use soroban_sdk::{
+    contract, contractimpl, contracterror, contracttype, symbol_short, Address, Env, String,
+};
 
 /// Participant type in the trade finance ecosystem
 #[contracttype]
@@ -33,8 +35,9 @@ enum DataKey {
 }
 
 /// Registry contract errors
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[repr(u32)]
 pub enum RegistryError {
     NotAuthorized = 1,
     ParticipantNotFound = 2,
@@ -68,7 +71,7 @@ impl RegistryContract {
         admin.require_auth();
 
         let key = DataKey::Participant(address.clone());
-        
+
         if env.storage().persistent().has(&key) {
             return Err(RegistryError::ParticipantAlreadyExists);
         }
@@ -82,24 +85,18 @@ impl RegistryContract {
         };
 
         env.storage().persistent().set(&key, &participant);
-        
+
         // Emit event
-        env.events().publish(
-            (symbol_short!("reg_part"), address),
-            participant,
-        );
+        env.events()
+            .publish((symbol_short!("reg_part"), address), participant);
 
         Ok(())
     }
 
     /// Check if an address is authorized for a specific participant type
-    pub fn is_authorised(
-        env: Env,
-        address: Address,
-        participant_type: ParticipantType,
-    ) -> bool {
+    pub fn is_authorised(env: Env, address: Address, participant_type: ParticipantType) -> bool {
         let key = DataKey::Participant(address);
-        
+
         if let Some(participant) = env.storage().persistent().get::<DataKey, Participant>(&key) {
             participant.active && participant.participant_type == participant_type
         } else {
@@ -114,7 +111,7 @@ impl RegistryContract {
         admin.require_auth();
 
         let key = DataKey::Participant(address.clone());
-        
+
         let mut participant = env
             .storage()
             .persistent()
@@ -125,10 +122,8 @@ impl RegistryContract {
         env.storage().persistent().set(&key, &participant);
 
         // Emit event
-        env.events().publish(
-            (symbol_short!("rev_part"), address),
-            (),
-        );
+        env.events()
+            .publish((symbol_short!("rev_part"), address), ());
 
         Ok(())
     }
@@ -136,7 +131,7 @@ impl RegistryContract {
     /// Get participant details
     pub fn get_participant(env: Env, address: Address) -> Result<Participant, RegistryError> {
         let key = DataKey::Participant(address);
-        
+
         env.storage()
             .persistent()
             .get::<DataKey, Participant>(&key)
@@ -166,7 +161,7 @@ mod test {
         env.mock_all_auths();
 
         client.initialize(&admin);
-        
+
         client.register_participant(
             &forwarder,
             &ParticipantType::FreightForwarder,
@@ -190,7 +185,7 @@ mod test {
         env.mock_all_auths();
 
         client.initialize(&admin);
-        
+
         client.register_participant(
             &inspector,
             &ParticipantType::Inspector,
