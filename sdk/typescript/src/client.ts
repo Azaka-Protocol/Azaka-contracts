@@ -65,6 +65,9 @@ export class AzakaClient {
 
   /**
    * Create a new trade (Letter of Credit)
+   * TODO: Implement proper transaction result parsing to extract trade ID
+   * TODO: Add retry logic for failed transactions
+   * TODO: Add transaction simulation before submission
    */
   async createTrade(
     params: CreateTradeParams,
@@ -100,13 +103,16 @@ export class AzakaClient {
     transaction.sign(sourceKeypair);
     const response = await this.server.sendTransaction(transaction);
     
-    // Wait for confirmation and extract trade ID
-    // In production, parse the result properly
-    return 1n; // Placeholder
+    // TODO: Wait for confirmation and extract trade ID from contract events
+    // TODO: Parse the transaction result properly
+    // For now, returning placeholder
+    return 1n;
   }
 
   /**
    * Deposit escrow for a trade
+   * TODO: Add token approval step before deposit
+   * TODO: Verify trade exists and is in correct state before deposit
    */
   async depositEscrow(
     tradeId: bigint,
@@ -116,6 +122,8 @@ export class AzakaClient {
     const contract = new Contract(this.config.contractIds.escrow);
     
     const account = await this.server.getAccount(sourceKeypair.publicKey());
+    
+    // TODO: First approve token transfer to escrow contract
     
     const transaction = new TransactionBuilder(account, {
       fee: BASE_FEE,
@@ -129,10 +137,15 @@ export class AzakaClient {
 
     transaction.sign(sourceKeypair);
     await this.server.sendTransaction(transaction);
+    
+    // TODO: Wait for confirmation and handle errors
   }
 
   /**
    * Submit a document
+   * TODO: Add document hash validation
+   * TODO: Verify IPFS URI format
+   * TODO: Check if document already exists before submission
    */
   async submitDocument(
     params: SubmitDocumentParams,
@@ -157,10 +170,14 @@ export class AzakaClient {
 
     transaction.sign(sourceKeypair);
     await this.server.sendTransaction(transaction);
+    
+    // TODO: Wait for confirmation
   }
 
   /**
    * Sign a document (counter-sign)
+   * TODO: Verify signer is authorized for this document type
+   * TODO: Check if document has already been signed by this signer
    */
   async signDocument(
     params: SignDocumentParams,
@@ -185,17 +202,28 @@ export class AzakaClient {
 
     transaction.sign(sourceKeypair);
     await this.server.sendTransaction(transaction);
+    
+    // TODO: Wait for confirmation
   }
 
   /**
    * Check if all documents are verified and release escrow if ready
+   * TODO: Implement proper document verification check
+   * TODO: Add automatic settlement trigger
+   * TODO: Handle partial document verification
    */
   async checkAndRelease(tradeId: bigint, sourceKeypair: Keypair): Promise<boolean> {
-    // First check if all docs are verified
+    // TODO: First check if all docs are verified via document contract
     const trade = await this.getTrade(tradeId);
     
-    // In production, call document contract to verify
-    // If verified, trigger release
+    // TODO: Call document contract to verify each required document
+    // const allVerified = await this.verifyAllDocuments(tradeId, trade.requiredDocs);
+    // if (!allVerified) {
+    //   return false;
+    // }
+    
+    // TODO: Trigger settlement in trade contract first
+    // await this.settleTrade(tradeId, sourceKeypair);
     
     const contract = new Contract(this.config.contractIds.escrow);
     const account = await this.server.getAccount(sourceKeypair.publicKey());
@@ -218,12 +246,18 @@ export class AzakaClient {
 
   /**
    * Get trade details
+   * TODO: Implement proper contract invocation and result parsing
+   * TODO: Add caching layer for frequently accessed trades
+   * TODO: Handle trade not found errors gracefully
    */
   async getTrade(tradeId: bigint): Promise<Trade> {
     const contract = new Contract(this.config.contractIds.trade);
     
-    // In production, properly invoke and parse the contract response
-    // This is a placeholder implementation
+    // TODO: Properly invoke contract and parse response
+    // const result = await contract.call('get_trade', tradeId);
+    // return parseTradeResult(result);
+    
+    // Placeholder implementation
     return {
       tradeId,
       exporter: 'G...',
@@ -240,21 +274,33 @@ export class AzakaClient {
 
   /**
    * List all trades for an exporter
+   * TODO: Implement pagination for large result sets
+   * TODO: Add filtering by status, date range, etc.
+   * TODO: Implement proper contract invocation
    */
   async listExporterTrades(exporter: string): Promise<bigint[]> {
     const contract = new Contract(this.config.contractIds.trade);
     
-    // In production, properly invoke and parse the contract response
+    // TODO: Properly invoke contract and parse response
+    // const result = await contract.call('list_trades_by_exporter', exporter);
+    // return parseTradeIdList(result);
+    
     return [];
   }
 
   /**
    * Get document details
+   * TODO: Implement proper contract invocation and result parsing
+   * TODO: Add IPFS metadata fetching
+   * TODO: Verify document hash integrity
    */
   async getDocument(tradeId: bigint, docType: DocumentType): Promise<Document> {
     const contract = new Contract(this.config.contractIds.document);
     
-    // In production, properly invoke and parse the contract response
+    // TODO: Properly invoke contract and parse response
+    // const result = await contract.call('get_document', tradeId, docType);
+    // return parseDocumentResult(result);
+    
     return {
       tradeId,
       docType,

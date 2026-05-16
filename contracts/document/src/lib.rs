@@ -80,9 +80,12 @@ impl DocumentContract {
     ) -> Result<(), DocumentError> {
         let submitter = env.current_contract_address();
         
-        // Check authorization via registry contract
-        // In production, this would call the registry contract
-        // For now, we'll require auth from the submitter
+        // TODO: Implement authorization check via registry contract
+        // let registry_contract: Address = env.storage().instance().get(&DataKey::RegistryContract).unwrap();
+        // let authorized = registry_contract.is_authorized(submitter, get_required_participant_type(doc_type));
+        // if !authorized {
+        //     return Err(DocumentError::NotAuthorized);
+        // }
         
         let key = DataKey::Document(trade_id, doc_type.clone());
         
@@ -117,6 +120,9 @@ impl DocumentContract {
             (symbol_short!("sub_doc"), trade_id, doc_type),
             (submitter, doc_hash, metadata_uri),
         );
+
+        // TODO: Notify trade contract of document submission
+        // This would trigger status updates in the trade lifecycle
 
         Ok(())
     }

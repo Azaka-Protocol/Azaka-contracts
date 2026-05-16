@@ -1,8 +1,11 @@
 # Azaka — Decentralised Trade Finance for African SME Exporters
 
+> **⚠️ Alpha Software**: This project is approximately 40% complete and under active development. Core smart contracts are functional but many features are incomplete. See [ROADMAP.md](ROADMAP.md) for details. Not ready for production use.
+
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Stellar](https://img.shields.io/badge/Stellar-Soroban-blue.svg)](https://stellar.org/soroban)
 [![Rust](https://img.shields.io/badge/rust-1.81.0-orange.svg)](https://www.rust-lang.org/)
+[![Status](https://img.shields.io/badge/status-alpha-yellow.svg)](https://github.com/yourusername/azaka)
 
 Azaka digitises the Letter of Credit process for small exporters. An importer locks payment into a smart contract escrow at deal creation. When authorised third parties (freight forwarders, inspection companies, port authorities) submit and sign the required shipping documents on-chain, the escrow releases payment automatically to the exporter in stablecoins — cutting settlement from 90 days to hours and eliminating correspondent bank fees.
 
@@ -19,31 +22,44 @@ Azaka solves this by moving the entire LC lifecycle on-chain, with cryptographic
 
 ## Architecture
 
-```mermaid
-graph TB
-    subgraph "Azaka Protocol"
-        Trade[Trade Contract<br/>LC Terms & Lifecycle]
-        Escrow[Escrow Contract<br/>Stablecoin Custody]
-        Document[Document Contract<br/>Hash Registry & Verification]
-        Registry[Registry Contract<br/>Participant Management]
-    end
-    
-    Importer[Importer] -->|1. Create Trade| Trade
-    IssuingBank[Issuing Bank] -->|2. Issue LC| Trade
-    ConfirmingBank[Confirming Bank] -->|3. Confirm LC| Trade
-    Importer -->|4. Deposit USDC| Escrow
-    
-    FreightForwarder[Freight Forwarder] -->|5. Submit Bill of Lading| Document
-    Inspector[Inspector] -->|6. Submit Inspection Cert| Document
-    PortAuthority[Port Authority] -->|7. Sign Documents| Document
-    
-    Document -->|8. All Docs Verified| Trade
-    Trade -->|9. Trigger Release| Escrow
-    Escrow -->|10. Pay Exporter| Exporter[Exporter]
-    
-    Registry -.->|Authorize| FreightForwarder
-    Registry -.->|Authorize| Inspector
-    Registry -.->|Authorize| PortAuthority
+```
+azaka/
+├── contracts/                  # Soroban smart contracts
+│   ├── trade/                 # Trade contract (LC lifecycle)
+│   │   └── src/lib.rs
+│   ├── escrow/                # Escrow contract (stablecoin custody)
+│   │   └── src/lib.rs
+│   ├── document/              # Document contract (hash verification)
+│   │   └── src/lib.rs
+│   └── registry/              # Registry contract (participant management)
+│       └── src/lib.rs
+│
+├── sdk/                       # Client SDKs
+│   └── typescript/            # TypeScript SDK
+│       ├── src/
+│       │   ├── client.ts      # Main Azaka client
+│       │   ├── bank-client.ts # Bank-specific client
+│       │   ├── types.ts       # Type definitions
+│       │   └── index.ts
+│       └── package.json
+│
+├── docs/                      # Documentation
+│   ├── architecture.md        # System architecture
+│   ├── bank-integration.md    # Bank integration guide
+│   ├── document-verification.md
+│   └── exporter-guide.md
+│
+├── scripts/                   # Deployment & utility scripts
+│   ├── deploy.sh             # Contract deployment (partial)
+│   └── seed.ts               # Testnet seed data (partial)
+│
+├── tests/                     # Integration tests
+│   └── integration_test.rs
+│
+├── Cargo.toml                # Rust workspace config
+├── README.md
+├── ROADMAP.md                # Development roadmap
+└── TODO.md                   # Task list
 ```
 
 ## Quickstart
@@ -68,20 +84,24 @@ cargo build --target wasm32-unknown-unknown --release
 cargo test
 ```
 
+**Note**: Some integration tests may fail due to incomplete cross-contract call implementations. This is expected in the current alpha version.
+
 ### Deploy to Stellar Testnet
 
 ```bash
 # Set up Testnet identity
 stellar keys generate deployer --network testnet
 
-# Deploy contracts
+# Deploy contracts (partial implementation)
 ./scripts/deploy.sh
 
-# Seed test data
+# Seed test data (partial implementation)
 cd sdk/typescript
 npm install
 npm run seed
 ```
+
+**⚠️ Warning**: Deployment and seed scripts are partially implemented. Manual deployment may be required. See [ROADMAP.md](ROADMAP.md) for details.
 
 ## Trade Lifecycle
 
@@ -248,6 +268,8 @@ const trade = await client.getTrade(tradeId);
 console.log(trade.status); // "DocumentsPending"
 ```
 
+**⚠️ Note**: The SDK is partially implemented. Many methods return placeholder data. See [TODO.md](TODO.md) for details on what needs to be completed.
+
 ## Stellar/Soroban Compatibility
 
 - **Soroban SDK**: 21.x
@@ -266,6 +288,38 @@ console.log(trade.status); // "DocumentsPending"
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, PR guidelines, and bounty information.
+
+**Current Status**: This project is approximately 40% complete. See [ROADMAP.md](ROADMAP.md) and [TODO.md](TODO.md) for details on what's implemented and what's planned.
+
+**Priority Contributions**:
+- Complete SDK implementation (transaction parsing, proper contract invocation)
+- Implement cross-contract calls in smart contracts
+- Add deployment automation
+- Improve test coverage
+- Add event indexer
+
+## Project Status
+
+**Version**: v0.1.0 (Alpha)  
+**Completion**: ~40%  
+**Status**: Active Development
+
+### What's Working ✅
+- Core smart contract logic (trade, escrow, document, registry)
+- Basic multi-signature document verification
+- Unit tests for all contracts
+- Integration test framework
+- TypeScript SDK structure and types
+- Comprehensive documentation
+
+### What's Not Working ⚠️
+- Cross-contract calls (manual verification required)
+- SDK methods return placeholder data
+- Deployment scripts are incomplete
+- No event indexer or monitoring
+- No production deployment
+
+See [ROADMAP.md](ROADMAP.md) for detailed development plan and [TODO.md](TODO.md) for specific tasks.
 
 ## License
 

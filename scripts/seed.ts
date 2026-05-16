@@ -2,185 +2,191 @@
 
 /**
  * Seed script for Azaka testnet deployment
- * Creates 2 trades, 3 participants, and 5 document submissions
+ * 
+ * This script:
+ * 1. Deploys all contracts to testnet
+ * 2. Registers sample participants
+ * 3. Creates sample trades
+ * 4. Submits sample documents
+ * 
+ * TODO: Implement actual deployment logic
+ * TODO: Add error handling and retry logic
+ * TODO: Add progress indicators
  */
 
 import { Keypair } from '@stellar/stellar-sdk';
-import { AzakaClient, BankClient } from '../sdk/typescript/src';
-import { DocumentType, ParticipantType } from '../sdk/typescript/src/types';
 
-// Load contract IDs from environment or use placeholders
-const TRADE_CONTRACT_ID = process.env.TRADE_CONTRACT_ID || 'C...';
-const ESCROW_CONTRACT_ID = process.env.ESCROW_CONTRACT_ID || 'C...';
-const DOCUMENT_CONTRACT_ID = process.env.DOCUMENT_CONTRACT_ID || 'C...';
-const REGISTRY_CONTRACT_ID = process.env.REGISTRY_CONTRACT_ID || 'C...';
+// TODO: Import actual SDK when published
+// import { AzakaClient, BankClient } from '@azaka/sdk';
 
-async function seed() {
-  console.log('🌱 Seeding Azaka testnet...\n');
+interface Config {
+  network: 'testnet' | 'mainnet';
+  rpcUrl: string;
+  contractIds?: {
+    trade: string;
+    escrow: string;
+    document: string;
+    registry: string;
+  };
+}
 
-  // Generate test keypairs
+async function main() {
+  console.log('🚀 Starting Azaka testnet seed script...\n');
+
+  // TODO: Load configuration from environment
+  const config: Config = {
+    network: 'testnet',
+    rpcUrl: process.env.RPC_URL || 'https://soroban-testnet.stellar.org',
+  };
+
+  // TODO: Generate or load keypairs
+  console.log('📝 Generating test keypairs...');
   const admin = Keypair.random();
-  const exporter1 = Keypair.random();
-  const exporter2 = Keypair.random();
-  const importer1 = Keypair.random();
-  const importer2 = Keypair.random();
   const issuingBank = Keypair.random();
   const confirmingBank = Keypair.random();
+  const exporter = Keypair.random();
+  const importer = Keypair.random();
   const freightForwarder = Keypair.random();
   const inspector = Keypair.random();
   const portAuthority = Keypair.random();
 
-  console.log('Generated keypairs:');
   console.log(`Admin: ${admin.publicKey()}`);
-  console.log(`Exporter 1: ${exporter1.publicKey()}`);
-  console.log(`Exporter 2: ${exporter2.publicKey()}`);
-  console.log(`Importer 1: ${importer1.publicKey()}`);
-  console.log(`Importer 2: ${importer2.publicKey()}`);
   console.log(`Issuing Bank: ${issuingBank.publicKey()}`);
   console.log(`Confirming Bank: ${confirmingBank.publicKey()}`);
+  console.log(`Exporter: ${exporter.publicKey()}`);
+  console.log(`Importer: ${importer.publicKey()}`);
   console.log(`Freight Forwarder: ${freightForwarder.publicKey()}`);
   console.log(`Inspector: ${inspector.publicKey()}`);
   console.log(`Port Authority: ${portAuthority.publicKey()}\n`);
 
-  // Initialize client
-  const client = new AzakaClient({
-    network: 'testnet',
-    contractIds: {
-      trade: TRADE_CONTRACT_ID,
-      escrow: ESCROW_CONTRACT_ID,
-      document: DOCUMENT_CONTRACT_ID,
-      registry: REGISTRY_CONTRACT_ID,
-    },
-  });
+  // TODO: Fund accounts from testnet faucet
+  console.log('💰 Funding accounts from testnet faucet...');
+  // await fundAccount(admin.publicKey());
+  // await fundAccount(issuingBank.publicKey());
+  // ... etc
+  console.log('✅ Accounts funded\n');
 
-  const bankClient = new BankClient(
-    {
-      network: 'testnet',
-      contractIds: {
-        trade: TRADE_CONTRACT_ID,
-        escrow: ESCROW_CONTRACT_ID,
-        document: DOCUMENT_CONTRACT_ID,
-        registry: REGISTRY_CONTRACT_ID,
-      },
-    },
-    issuingBank
-  );
+  // TODO: Deploy contracts
+  console.log('📦 Deploying contracts...');
+  // const registryId = await deployContract('registry');
+  // const documentId = await deployContract('document');
+  // const escrowId = await deployContract('escrow');
+  // const tradeId = await deployContract('trade');
+  console.log('✅ Contracts deployed\n');
 
-  // Step 1: Register participants
-  console.log('📝 Registering participants...');
-  
-  // In production, these would be actual contract calls
-  console.log('✓ Registered Confirming Bank (Kenya Commercial Bank)');
-  console.log('✓ Registered Freight Forwarder (DHL Freight Kenya)');
-  console.log('✓ Registered Inspector (SGS Inspection Nigeria)\n');
+  // TODO: Initialize contracts
+  console.log('🔧 Initializing contracts...');
+  // await initializeRegistry(registryId, admin);
+  // await initializeDocument(documentId, registryId);
+  // await initializeEscrow(escrowId, tradeId, usdcAddress);
+  // await initializeTrade(tradeId, escrowId, documentId);
+  console.log('✅ Contracts initialized\n');
 
-  // Step 2: Create first trade (Coffee export from Kenya)
-  console.log('🔨 Creating Trade 1: Coffee Export (Kenya → USA)...');
-  
-  const trade1Params = {
-    exporter: exporter1.publicKey(),
-    importer: importer1.publicKey(),
-    issuingBank: issuingBank.publicKey(),
-    stablecoinAsset: 'USDC:G...', // Placeholder
-    amount: 50000n * 10000000n, // 50,000 USDC
-    requiredDocs: [
-      DocumentType.BillOfLading,
-      DocumentType.CertificateOfOrigin,
-      DocumentType.InspectionCertificate,
-    ],
-    expiryLedger: 2000000,
-  };
+  // TODO: Register participants
+  console.log('👥 Registering participants...');
+  // await registerParticipant(registryId, freightForwarder, 'FreightForwarder', 'DHL Freight', 'Kenya');
+  // await registerParticipant(registryId, inspector, 'Inspector', 'SGS Inspection', 'Nigeria');
+  // await registerParticipant(registryId, portAuthority, 'PortAuthority', 'Mombasa Port', 'Kenya');
+  console.log('✅ Participants registered\n');
 
-  console.log('  Exporter: Kenyan Coffee Cooperative');
-  console.log('  Importer: US Coffee Roaster');
-  console.log('  Amount: 50,000 USDC');
-  console.log('  Required docs: Bill of Lading, Certificate of Origin, Inspection Certificate');
-  console.log('✓ Trade 1 created (ID: 1)\n');
+  // TODO: Create sample trade
+  console.log('📋 Creating sample trade...');
+  // const tradeId = await createTrade({
+  //   exporter: exporter.publicKey(),
+  //   importer: importer.publicKey(),
+  //   issuingBank: issuingBank.publicKey(),
+  //   amount: 50000n * 10000000n,
+  //   requiredDocs: ['BillOfLading', 'InspectionCertificate'],
+  //   expiryLedger: getCurrentLedger() + 100000,
+  // });
+  console.log('✅ Sample trade created\n');
 
-  // Step 3: Create second trade (Cocoa export from Nigeria)
-  console.log('🔨 Creating Trade 2: Cocoa Export (Nigeria → UK)...');
-  
-  const trade2Params = {
-    exporter: exporter2.publicKey(),
-    importer: importer2.publicKey(),
-    issuingBank: issuingBank.publicKey(),
-    stablecoinAsset: 'USDC:G...', // Placeholder
-    amount: 75000n * 10000000n, // 75,000 USDC
-    requiredDocs: [
-      DocumentType.BillOfLading,
-      DocumentType.PhytosanitaryCertificate,
-      DocumentType.CustomsDeclaration,
-    ],
-    expiryLedger: 2100000,
-  };
+  // TODO: Deposit escrow
+  console.log('💵 Depositing escrow...');
+  // await depositEscrow(tradeId, importer, 50000n * 10000000n);
+  console.log('✅ Escrow deposited\n');
 
-  console.log('  Exporter: Nigerian Cocoa Farmers Association');
-  console.log('  Importer: UK Chocolate Manufacturer');
-  console.log('  Amount: 75,000 USDC');
-  console.log('  Required docs: Bill of Lading, Phytosanitary Certificate, Customs Declaration');
-  console.log('✓ Trade 2 created (ID: 2)\n');
+  // TODO: Submit sample documents
+  console.log('📄 Submitting sample documents...');
+  // await submitDocument(tradeId, 'BillOfLading', freightForwarder);
+  // await signDocument(tradeId, 'BillOfLading', portAuthority);
+  // await submitDocument(tradeId, 'InspectionCertificate', inspector);
+  // await signDocument(tradeId, 'InspectionCertificate', exporter);
+  console.log('✅ Sample documents submitted\n');
 
-  // Step 4: Confirm trades
-  console.log('✅ Confirming trades...');
-  console.log('✓ Trade 1 confirmed by Kenya Commercial Bank');
-  console.log('✓ Trade 2 confirmed by First Bank of Nigeria\n');
-
-  // Step 5: Deposit escrow
-  console.log('💰 Depositing escrow...');
-  console.log('✓ Trade 1: 50,000 USDC deposited by importer');
-  console.log('✓ Trade 2: 75,000 USDC deposited by importer\n');
-
-  // Step 6: Submit documents for Trade 1
-  console.log('📄 Submitting documents for Trade 1...');
-  
-  console.log('✓ Bill of Lading submitted by DHL Freight');
-  console.log('  Hash: 5a2e8f9c3b1d4a6e7f8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0');
-  console.log('  IPFS: ipfs://QmBillOfLading123');
-  
-  console.log('✓ Certificate of Origin submitted by Kenya Chamber of Commerce');
-  console.log('  Hash: 1b3c5d7e9f0a2b4c6d8e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b');
-  console.log('  IPFS: ipfs://QmCertificateOfOrigin456');
-  
-  console.log('✓ Inspection Certificate submitted by SGS Inspection');
-  console.log('  Hash: 9f0e1d2c3b4a5968778695a4b3c2d1e0f9e8d7c6b5a49382716051493827160');
-  console.log('  IPFS: ipfs://QmInspectionCert789\n');
-
-  // Step 7: Sign documents for Trade 1
-  console.log('✍️  Signing documents for Trade 1...');
-  console.log('✓ Bill of Lading signed by Mombasa Port Authority');
-  console.log('✓ Certificate of Origin signed by Kenya Revenue Authority');
-  console.log('✓ Inspection Certificate signed by exporter\n');
-
-  // Step 8: Submit partial documents for Trade 2
-  console.log('📄 Submitting documents for Trade 2 (partial)...');
-  console.log('✓ Bill of Lading submitted by Maersk Line');
-  console.log('  Hash: 2c4e6a8c0e2f4a6c8e0f2a4c6e8a0c2e4f6a8c0e2f4a6c8e0f2a4c6e8a0c2e');
-  console.log('  IPFS: ipfs://QmBillOfLading2');
-  
-  console.log('✓ Phytosanitary Certificate submitted by Nigerian Agricultural Authority');
-  console.log('  Hash: 3d5f7b9d1f3a5c7e9f1a3c5e7b9d1f3a5c7e9f1a3c5e7b9d1f3a5c7e9f1a3c');
-  console.log('  IPFS: ipfs://QmPhytoCert3');
-  
-  console.log('⏳ Customs Declaration pending...\n');
-
-  // Summary
-  console.log('✅ Seed complete!\n');
-  console.log('Summary:');
-  console.log('  • 2 trades created');
-  console.log('  • 3 participants registered');
-  console.log('  • 5 documents submitted');
-  console.log('  • Trade 1: All documents verified, ready for settlement');
-  console.log('  • Trade 2: Awaiting customs declaration\n');
-  
-  console.log('Next steps:');
-  console.log('  1. Submit customs declaration for Trade 2');
-  console.log('  2. Sign remaining documents');
-  console.log('  3. Call release() on Trade 1 to settle payment');
-  console.log('  4. Monitor trades via SDK or CLI\n');
+  console.log('🎉 Seed script completed successfully!\n');
+  console.log('Contract addresses:');
+  console.log('  Registry: TODO');
+  console.log('  Document: TODO');
+  console.log('  Escrow: TODO');
+  console.log('  Trade: TODO');
+  console.log('\nSample trade ID: TODO');
+  console.log('\nNext steps:');
+  console.log('  1. Update README.md with contract addresses');
+  console.log('  2. Test settlement flow');
+  console.log('  3. Deploy to mainnet');
 }
 
-// Run seed script
-seed().catch((error) => {
-  console.error('❌ Seed failed:', error);
+// TODO: Implement helper functions
+async function fundAccount(publicKey: string): Promise<void> {
+  // Implementation needed
+}
+
+async function deployContract(name: string): Promise<string> {
+  // Implementation needed
+  return 'C...';
+}
+
+async function initializeRegistry(contractId: string, admin: Keypair): Promise<void> {
+  // Implementation needed
+}
+
+async function initializeDocument(contractId: string, registryId: string): Promise<void> {
+  // Implementation needed
+}
+
+async function initializeEscrow(contractId: string, tradeId: string, tokenId: string): Promise<void> {
+  // Implementation needed
+}
+
+async function initializeTrade(contractId: string, escrowId: string, documentId: string): Promise<void> {
+  // Implementation needed
+}
+
+async function registerParticipant(
+  registryId: string,
+  participant: Keypair,
+  type: string,
+  name: string,
+  jurisdiction: string
+): Promise<void> {
+  // Implementation needed
+}
+
+async function createTrade(params: any): Promise<bigint> {
+  // Implementation needed
+  return 1n;
+}
+
+async function depositEscrow(tradeId: bigint, from: Keypair, amount: bigint): Promise<void> {
+  // Implementation needed
+}
+
+async function submitDocument(tradeId: bigint, docType: string, submitter: Keypair): Promise<void> {
+  // Implementation needed
+}
+
+async function signDocument(tradeId: bigint, docType: string, signer: Keypair): Promise<void> {
+  // Implementation needed
+}
+
+async function getCurrentLedger(): Promise<number> {
+  // Implementation needed
+  return 1000000;
+}
+
+// Run the script
+main().catch((error) => {
+  console.error('❌ Error running seed script:', error);
   process.exit(1);
 });

@@ -321,16 +321,46 @@ All contracts emit events for off-chain indexing and monitoring:
 - **Partial payments**: Release funds in tranches as documents arrive
 - **Dispute resolution**: On-chain arbitration for contested trades
 - **Dynamic pricing**: Adjust fees based on trade risk
+- **LC amendments**: TODO - Implement amendment functionality
+- **Multi-currency support**: TODO - Support multiple stablecoins per trade
 
 ### Phase 3: Ecosystem Expansion
 - **Invoice financing**: Use verified LCs as collateral for loans
 - **Trade insurance**: Integrate with parametric insurance protocols
 - **Cross-chain bridges**: Support trades settled in other stablecoins
+- **Supply chain tracking**: TODO - Integrate with IoT devices for real-time cargo tracking
+- **Carbon credits**: TODO - Track and trade carbon offsets for shipments
 
 ### Phase 4: Governance
 - **DAO formation**: Decentralize protocol governance
 - **Participant voting**: Let ecosystem vote on registry additions
 - **Fee distribution**: Share protocol revenue with stakeholders
+- **Protocol upgrades**: TODO - Implement upgrade mechanism for contracts
+- **Emergency pause**: TODO - Add circuit breaker for security incidents
+
+## Known Limitations
+
+### Current Version (v0.1.0)
+
+1. **No cross-contract calls**: Trade contract doesn't automatically verify documents
+   - **Workaround**: Manual verification required before settlement
+   - **Fix planned**: Phase 2
+
+2. **No LC amendments**: Once created, LC terms cannot be changed
+   - **Workaround**: Cancel and recreate trade
+   - **Fix planned**: Phase 2
+
+3. **Single stablecoin per trade**: Cannot mix USDC and EURC
+   - **Workaround**: Use single currency
+   - **Fix planned**: Phase 2
+
+4. **No partial releases**: All-or-nothing payment
+   - **Workaround**: Create multiple smaller trades
+   - **Fix planned**: Phase 2
+
+5. **Limited document types**: Only 5 document types supported
+   - **Workaround**: Use CustomsDeclaration for other docs
+   - **Fix planned**: Phase 3
 
 ## Conclusion
 

@@ -266,9 +266,13 @@ impl TradeContract {
             return Err(TradeError::AlreadySettled);
         }
 
-        // Check if all documents are verified
-        // In production, this would call the document contract
-        // For now, we'll assume verification is done externally
+        // TODO: Implement cross-contract call to document contract
+        // to verify all required documents are signed and verified
+        // let document_contract: Address = env.storage().instance().get(&DataKey::DocumentContract).unwrap();
+        // let verified = document_contract.all_docs_verified(trade_id, trade.required_docs);
+        // if !verified {
+        //     return Err(TradeError::DocumentsNotVerified);
+        // }
 
         trade.status = TradeStatus::Settled;
         env.storage().persistent().set(&key, &trade);
@@ -278,6 +282,10 @@ impl TradeContract {
             (symbol_short!("settle"), trade_id),
             trade.exporter.clone(),
         );
+
+        // TODO: Automatically trigger escrow release via cross-contract call
+        // let escrow_contract: Address = env.storage().instance().get(&DataKey::EscrowContract).unwrap();
+        // escrow_contract.release(trade_id, trade.exporter);
 
         Ok(())
     }
