@@ -7,6 +7,9 @@ import {
   Keypair,
   Operation,
   Account,
+  nativeToScVal,
+  Address,
+  xdr,
 } from '@stellar/stellar-sdk';
 import type {
   AzakaConfig,
@@ -85,15 +88,13 @@ export class AzakaClient {
       .addOperation(
         contract.call(
           'create_trade',
-          ...[
-            params.exporter,
-            params.importer,
-            params.issuingBank,
-            params.stablecoinAsset,
-            params.amount,
-            params.requiredDocs,
-            params.expiryLedger,
-          ]
+          nativeToScVal(params.exporter, { type: 'address' }),
+          nativeToScVal(params.importer, { type: 'address' }),
+          nativeToScVal(params.issuingBank, { type: 'address' }),
+          nativeToScVal(params.stablecoinAsset, { type: 'address' }),
+          nativeToScVal(params.amount, { type: 'i128' }),
+          nativeToScVal(params.requiredDocs, { type: 'vec' }),
+          nativeToScVal(params.expiryLedger, { type: 'u32' })
         )
       )
       .setTimeout(30)
@@ -130,7 +131,12 @@ export class AzakaClient {
       networkPassphrase: this.networkPassphrase,
     })
       .addOperation(
-        contract.call('deposit', ...[tradeId, sourceKeypair.publicKey(), amount])
+        contract.call(
+          'deposit',
+          nativeToScVal(tradeId, { type: 'u64' }),
+          nativeToScVal(sourceKeypair.publicKey(), { type: 'address' }),
+          nativeToScVal(amount, { type: 'i128' })
+        )
       )
       .setTimeout(30)
       .build();
@@ -162,7 +168,10 @@ export class AzakaClient {
       .addOperation(
         contract.call(
           'submit_document',
-          ...[params.tradeId, params.docType, params.docHash, params.metadataUri]
+          nativeToScVal(params.tradeId, { type: 'u64' }),
+          nativeToScVal(params.docType, { type: 'string' }),
+          nativeToScVal(params.docHash, { type: 'bytes' }),
+          nativeToScVal(params.metadataUri, { type: 'string' })
         )
       )
       .setTimeout(30)
@@ -194,7 +203,9 @@ export class AzakaClient {
       .addOperation(
         contract.call(
           'sign_document',
-          ...[params.tradeId, params.docType, params.signer]
+          nativeToScVal(params.tradeId, { type: 'u64' }),
+          nativeToScVal(params.docType, { type: 'string' }),
+          nativeToScVal(params.signer, { type: 'address' })
         )
       )
       .setTimeout(30)
@@ -233,7 +244,11 @@ export class AzakaClient {
       networkPassphrase: this.networkPassphrase,
     })
       .addOperation(
-        contract.call('release', ...[tradeId, trade.exporter])
+        contract.call(
+          'release',
+          nativeToScVal(tradeId, { type: 'u64' }),
+          nativeToScVal(trade.exporter, { type: 'address' })
+        )
       )
       .setTimeout(30)
       .build();

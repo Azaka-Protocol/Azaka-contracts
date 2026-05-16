@@ -1,7 +1,8 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracterror, contracttype, symbol_short, Address, BytesN, Env, String, Vec,
+    contract, contracterror, contractimpl, contracttype, symbol_short, Address, BytesN, Env,
+    String, Vec,
 };
 
 /// Document type in trade finance

@@ -1,7 +1,7 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracterror, contracttype, symbol_short, token, Address, Env,
+    contract, contracterror, contractimpl, contracttype, symbol_short, token, Address, Env,
 };
 
 /// Storage keys
@@ -180,7 +180,9 @@ mod test {
         let importer = Address::generate(&env);
         let exporter = Address::generate(&env);
 
-        let token_address = env.register_stellar_asset_contract_v2(admin.clone()).address();
+        let token_address = env
+            .register_stellar_asset_contract_v2(admin.clone())
+            .address();
         let token_admin = token::StellarAssetClient::new(&env, &token_address);
         let token_client = token::TokenClient::new(&env, &token_address);
         token_admin.mint(&importer, &1000000);
@@ -209,7 +211,9 @@ mod test {
         let trade_contract = Address::generate(&env);
         let importer = Address::generate(&env);
 
-        let token_address = env.register_stellar_asset_contract_v2(admin.clone()).address();
+        let token_address = env
+            .register_stellar_asset_contract_v2(admin.clone())
+            .address();
         let token_admin = token::StellarAssetClient::new(&env, &token_address);
         let token_client = token::TokenClient::new(&env, &token_address);
         token_admin.mint(&importer, &1000000);
@@ -230,7 +234,6 @@ mod test {
     }
 
     #[test]
-    #[should_panic(expected = "AlreadyDeposited")]
     fn test_double_deposit_fails() {
         let env = Env::default();
         env.mock_all_auths();
@@ -239,7 +242,9 @@ mod test {
         let trade_contract = Address::generate(&env);
         let importer = Address::generate(&env);
 
-        let token_address = env.register_stellar_asset_contract_v2(admin.clone()).address();
+        let token_address = env
+            .register_stellar_asset_contract_v2(admin.clone())
+            .address();
         let token_admin = token::StellarAssetClient::new(&env, &token_address);
         token_admin.mint(&importer, &1000000);
 
@@ -249,6 +254,9 @@ mod test {
         client.initialize(&trade_contract, &token_address);
 
         client.deposit(&1, &importer, &500000);
-        client.deposit(&1, &importer, &500000); // Should panic
+        
+        // Second deposit should fail with AlreadyDeposited error
+        let result = client.try_deposit(&1, &importer, &500000);
+        assert_eq!(result, Err(Ok(EscrowError::AlreadyDeposited)));
     }
 }
