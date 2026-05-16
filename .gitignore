@@ -6,6 +6,7 @@ Cargo.lock
 
 # Soroban
 .soroban/
+test_snapshots/
 *.wasm
 
 # Node

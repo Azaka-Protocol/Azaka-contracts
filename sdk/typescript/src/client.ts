@@ -5,20 +5,17 @@ import {
   Networks,
   BASE_FEE,
   Keypair,
-  Operation,
-  Account,
   nativeToScVal,
-  Address,
-  xdr,
 } from '@stellar/stellar-sdk';
-import type {
-  AzakaConfig,
-  CreateTradeParams,
-  SubmitDocumentParams,
-  SignDocumentParams,
-  Trade,
-  Document,
-  DocumentType,
+import {
+  TradeStatus,
+  type AzakaConfig,
+  type CreateTradeParams,
+  type SubmitDocumentParams,
+  type SignDocumentParams,
+  type Trade,
+  type Document,
+  type DocumentType,
 } from './types';
 
 /**
@@ -102,7 +99,7 @@ export class AzakaClient {
 
     // Sign and submit
     transaction.sign(sourceKeypair);
-    const response = await this.server.sendTransaction(transaction);
+    await this.server.sendTransaction(transaction);
     
     // TODO: Wait for confirmation and extract trade ID from contract events
     // TODO: Parse the transaction result properly
@@ -266,8 +263,6 @@ export class AzakaClient {
    * TODO: Handle trade not found errors gracefully
    */
   async getTrade(tradeId: bigint): Promise<Trade> {
-    const contract = new Contract(this.config.contractIds.trade);
-    
     // TODO: Properly invoke contract and parse response
     // const result = await contract.call('get_trade', tradeId);
     // return parseTradeResult(result);
@@ -282,7 +277,7 @@ export class AzakaClient {
       amount: 50000n * 10000000n,
       requiredDocs: [],
       expiryLedger: 1000000,
-      status: 'Active' as any,
+      status: TradeStatus.Active,
       createdLedger: 900000,
     };
   }
@@ -293,9 +288,7 @@ export class AzakaClient {
    * TODO: Add filtering by status, date range, etc.
    * TODO: Implement proper contract invocation
    */
-  async listExporterTrades(exporter: string): Promise<bigint[]> {
-    const contract = new Contract(this.config.contractIds.trade);
-    
+  async listExporterTrades(_exporter: string): Promise<bigint[]> {
     // TODO: Properly invoke contract and parse response
     // const result = await contract.call('list_trades_by_exporter', exporter);
     // return parseTradeIdList(result);
@@ -310,8 +303,6 @@ export class AzakaClient {
    * TODO: Verify document hash integrity
    */
   async getDocument(tradeId: bigint, docType: DocumentType): Promise<Document> {
-    const contract = new Contract(this.config.contractIds.document);
-    
     // TODO: Properly invoke contract and parse response
     // const result = await contract.call('get_document', tradeId, docType);
     // return parseDocumentResult(result);

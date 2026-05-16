@@ -101,7 +101,7 @@ export class BankClient {
    * TODO: Require both parties' approval for amendments
    * TODO: Track amendment history
    */
-  async amendLc(tradeId: bigint, amendments: Partial<CreateTradeParams>): Promise<void> {
+  async amendLc(_tradeId: bigint, _amendments: Partial<CreateTradeParams>): Promise<void> {
     // TODO: Implement amendment logic
     throw new Error('LC amendment not yet implemented');
   }
@@ -111,7 +111,7 @@ export class BankClient {
    * TODO: Implement dynamic fee calculation based on amount, risk, duration
    * TODO: Integrate with bank's pricing engine
    */
-  async calculateFees(amount: bigint, duration: number): Promise<bigint> {
+  async calculateFees(_amount: bigint, _duration: number): Promise<bigint> {
     // TODO: Implement fee calculation
     // Typical LC fees: 0.5-2% of transaction value
     return 0n;

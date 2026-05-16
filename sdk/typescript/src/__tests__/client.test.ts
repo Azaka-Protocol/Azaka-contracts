@@ -1,25 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { Keypair } from '@stellar/stellar-sdk';
+import { describe, it, expect } from 'vitest';
 import { AzakaClient } from '../client';
-import { DocumentType } from '../types';
 
 describe('AzakaClient', () => {
-  let client: AzakaClient;
-  let keypair: Keypair;
-
-  beforeEach(() => {
-    keypair = Keypair.random();
-    client = new AzakaClient({
-      network: 'testnet',
-      contractIds: {
-        trade: 'CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM',
-        escrow: 'CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KN',
-        document: 'CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KO',
-        registry: 'CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KP',
-      },
-    });
-  });
-
   describe('createTrade', () => {
     it('should create a trade and return trade ID', async () => {
       // TODO: Mock Stellar RPC responses
@@ -184,7 +166,7 @@ describe('AzakaClient', () => {
         },
       });
       // TODO: Verify RPC URL
-      expect(true).toBe(true);
+      expect(testnetClient).toBeInstanceOf(AzakaClient);
     });
 
     it('should use correct RPC URL for mainnet', () => {
@@ -198,7 +180,7 @@ describe('AzakaClient', () => {
         },
       });
       // TODO: Verify RPC URL
-      expect(true).toBe(true);
+      expect(mainnetClient).toBeInstanceOf(AzakaClient);
     });
 
     it('should allow custom RPC URL', () => {
@@ -213,7 +195,7 @@ describe('AzakaClient', () => {
         },
       });
       // TODO: Verify custom RPC URL is used
-      expect(true).toBe(true);
+      expect(customClient).toBeInstanceOf(AzakaClient);
     });
   });
 

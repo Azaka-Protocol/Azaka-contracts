@@ -254,7 +254,7 @@ mod test {
         client.initialize(&trade_contract, &token_address);
 
         client.deposit(&1, &importer, &500000);
-        
+
         // Second deposit should fail with AlreadyDeposited error
         let result = client.try_deposit(&1, &importer, &500000);
         assert_eq!(result, Err(Ok(EscrowError::AlreadyDeposited)));
