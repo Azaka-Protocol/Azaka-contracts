@@ -34,7 +34,7 @@ Look for issues labeled `good first issue` — these are specifically chosen to 
 
 ```bash
 # Fork the repository on GitHub, then:
-git clone https://github.com/YOUR_USERNAME/azaka.git
+git clone https://github.com/YOUR_USERNAME/Azaka-contracts.git
 cd azaka
 ```
 
@@ -200,7 +200,6 @@ When opening a PR, include:
 2. **Motivation**: Why is this change needed?
 3. **Testing**: How was this tested?
 4. **Breaking Changes**: Does this break existing functionality?
-5. **Screenshots**: If UI changes, include screenshots
 
 ### PR Template
 
@@ -387,10 +386,8 @@ Azaka offers bounties for significant contributions:
 
 ### Communication Channels
 
-- **Discord**: https://discord.gg/azaka (most active)
 - **GitHub Discussions**: For long-form discussions
 - **GitHub Issues**: For bugs and features
-- **Twitter**: @azaka_finance (announcements)
 
 ### Code of Conduct
 

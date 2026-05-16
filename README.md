@@ -1,6 +1,5 @@
 # Azaka — Decentralised Trade Finance for African SME Exporters
 
-> **⚠️ Alpha Software**: This project is approximately 40% complete and under active development. Core smart contracts are functional but many features are incomplete. See [ROADMAP.md](ROADMAP.md) for details. Not ready for production use.
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Stellar](https://img.shields.io/badge/Stellar-Soroban-blue.svg)](https://stellar.org/soroban)
@@ -60,56 +59,6 @@ azaka/
 ├── README.md
 ├── ROADMAP.md                # Development roadmap
 └── TODO.md                   # Task list
-``` Trade -->|Trigger Release| Escrow
-    
-    Escrow <-->|Transfer| USDC
-    Escrow -->|Pay Out| Exporter
-    
-    style Registry fill:#e1f5ff
-    style Trade fill:#fff4e1
-    style Document fill:#f0e1ff
-    style Escrow fill:#e1ffe1
-```
-
-### Trade Flow Sequence
-
-```mermaid
-sequenceDiagram
-    participant Imp as Importer
-    participant IB as Issuing Bank
-    participant TC as Trade Contract
-    participant EC as Escrow Contract
-    participant DC as Document Contract
-    participant FF as Freight Forwarder
-    participant PA as Port Authority
-    participant Exp as Exporter
-    
-    IB->>TC: 1. Create Trade
-    Note over TC: Status: PendingEscrow
-    
-    IB->>TC: 2. Confirm Trade
-    Note over TC: Status: Active
-    
-    Imp->>EC: 3. Deposit USDC
-    EC->>TC: 4. Mark Escrow Deposited
-    Note over TC: Status: DocumentsPending
-    
-    Exp->>Exp: 5. Ship Goods
-    
-    FF->>DC: 6. Submit Bill of Lading
-    PA->>DC: 7. Sign Bill of Lading
-    Note over DC: Document Verified ✓
-    
-    FF->>DC: 8. Submit Other Docs
-    PA->>DC: 9. Sign Other Docs
-    Note over DC: All Docs Verified ✓
-    
-    TC->>DC: 10. Check All Docs Verified?
-    DC-->>TC: Yes
-    
-    TC->>EC: 11. Release Funds
-    EC->>Exp: 12. Transfer USDC
-    Note over TC: Status: Settled
 ```
 
 ## Quickstart
@@ -123,7 +72,7 @@ sequenceDiagram
 ### Build
 
 ```bash
-git clone https://github.com/yourusername/azaka.git
+git clone https://github.com/yourusername/Azaka-contracts.git
 cd azaka
 cargo build --target wasm32-unknown-unknown --release
 ```
@@ -150,8 +99,6 @@ cd sdk/typescript
 npm install
 npm run seed
 ```
-
-**⚠️ Warning**: Deployment and seed scripts are partially implemented. Manual deployment may be required. See [ROADMAP.md](ROADMAP.md) for details.
 
 ## Trade Lifecycle
 
@@ -318,8 +265,6 @@ const trade = await client.getTrade(tradeId);
 console.log(trade.status); // "DocumentsPending"
 ```
 
-**⚠️ Note**: The SDK is partially implemented. Many methods return placeholder data. See [TODO.md](TODO.md) for details on what needs to be completed.
-
 ## Stellar/Soroban Compatibility
 
 - **Soroban SDK**: 21.x
@@ -339,7 +284,6 @@ console.log(trade.status); // "DocumentsPending"
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, PR guidelines, and bounty information.
 
-**Current Status**: This project is approximately 40% complete. See [ROADMAP.md](ROADMAP.md) and [TODO.md](TODO.md) for details on what's implemented and what's planned.
 
 **Priority Contributions**:
 - Complete SDK implementation (transaction parsing, proper contract invocation)
@@ -351,25 +295,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, PR guidelines, and bount
 ## Project Status
 
 **Version**: v0.1.0 (Alpha)  
-**Completion**: ~40%  
 **Status**: Active Development
 
-### What's Working ✅
-- Core smart contract logic (trade, escrow, document, registry)
-- Basic multi-signature document verification
-- Unit tests for all contracts
-- Integration test framework
-- TypeScript SDK structure and types
-- Comprehensive documentation
-
-### What's Not Working ⚠️
-- Cross-contract calls (manual verification required)
-- SDK methods return placeholder data
-- Deployment scripts are incomplete
-- No event indexer or monitoring
-- No production deployment
-
-See [ROADMAP.md](ROADMAP.md) for detailed development plan and [TODO.md](TODO.md) for specific tasks.
 
 ## License
 
