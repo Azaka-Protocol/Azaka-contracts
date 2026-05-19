@@ -526,24 +526,6 @@ describe('Bank Integration', () => {
 - Unusual trade patterns
 - Security incidents
 
-## Support
-
-### Azaka Support Channels
-
-- **Documentation**: https://docs.azaka.finance
-- **Discord**: https://discord.gg/azaka
-- **Email**: support@azaka.finance
-- **GitHub**: https://github.com/azaka/azaka
-
-### Bank-Specific Support
-
-For banks integrating Azaka, we offer:
-- Dedicated integration engineer
-- Priority support (24/7)
-- Custom SLAs
-- Regulatory guidance
-
-Contact: banks@azaka.finance
 
 ## Example: Full Integration
 
@@ -673,4 +655,3 @@ Integrating Azaka enables banks to:
 
 The TypeScript SDK and custodial integration pattern make it possible to integrate in weeks, not months, with minimal blockchain expertise required.
 
-For integration support, contact: banks@azaka.finance
