@@ -22,7 +22,7 @@ Azaka solves this by moving the entire LC lifecycle on-chain, with cryptographic
 ## Architecture
 
 ```
-azaka/
+azaka-contracts/
 ├── contracts/                  # Soroban smart contracts
 │   ├── trade/                 # Trade contract (LC lifecycle)
 │   │   └── src/lib.rs
