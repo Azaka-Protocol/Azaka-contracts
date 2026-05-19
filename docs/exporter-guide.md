@@ -170,13 +170,13 @@ Depending on your trade, you may need:
 - Maersk Line (Pan-African)
 - Bollore Logistics (West Africa)
 
-If your forwarder isn't registered, they can register at: https://azaka.finance/register
+If your forwarder isn't registered, they can register at our website
 
 ## Step 5: Track Document Submission
 
 ### Check Document Status
 
-You can check document status at: https://app.azaka.finance/trades/[TRADE_ID]
+You can check document status at our website(still in production)
 
 **Status indicators**:
 - ⏳ **Pending**: Document not yet submitted
@@ -230,7 +230,7 @@ You'll receive notification:
 
 If all documents are verified but payment hasn't arrived after 1 hour:
 
-1. Check trade status: https://app.azaka.finance/trades/[TRADE_ID]
+1. Check trade status
 2. Verify all documents show ✅ Verified
 3. Check your wallet address is correct
 4. Contact Azaka support: support@azaka.finance
@@ -437,21 +437,7 @@ Currently, Azaka is designed for international trade. Domestic trade support com
 
 Azaka uses stablecoins, which are often treated differently than cryptocurrency. However, you should comply with local laws. Consult legal advisor.
 
-## Support
 
-### Azaka Support
-
-- **Email**: support@azaka.finance
-- **WhatsApp**: +254-XXX-XXXX (Kenya), +234-XXX-XXXX (Nigeria)
-- **Discord**: https://discord.gg/azaka
-- **Documentation**: https://docs.azaka.finance
-
-### Community
-
-Join other African exporters using Azaka:
-- **Telegram**: https://t.me/azaka_exporters
-- **Twitter**: @azaka_finance
-- **LinkedIn**: Azaka Trade Finance
 
 ## Next Steps
 
@@ -462,7 +448,6 @@ Join other African exporters using Azaka:
 5. ✅ Create your first real trade
 6. ✅ Join Azaka community
 
-**Ready to get started?** Visit https://app.azaka.finance/register
 
 ---
 
