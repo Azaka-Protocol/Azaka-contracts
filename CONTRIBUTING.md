@@ -35,7 +35,7 @@ Look for issues labeled `good first issue` — these are specifically chosen to 
 ```bash
 # Fork the repository on GitHub, then:
 git clone https://github.com/YOUR_USERNAME/Azaka-contracts.git
-cd azaka
+cd azaka-contracts
 ```
 
 ### 2. Install Dependencies
@@ -83,7 +83,7 @@ chmod +x .git/hooks/pre-commit
 ## Project Structure
 
 ```
-azaka/
+azaka-contracts/
 ├── contracts/          # Soroban smart contracts
 │   ├── trade/         # Core trade contract
 │   ├── escrow/        # Escrow contract
@@ -345,42 +345,6 @@ code block
 - `bank-integration` - Bank integration
 - `docs` - Documentation
 
-## Bounty Program
-
-Azaka offers bounties for significant contributions:
-
-### Bounty Tiers
-
-**Tier 1: $100–500**
-- Critical bug fixes
-- Security improvements
-- Major feature implementations
-
-**Tier 2: $50–100**
-- Important bug fixes
-- Medium features
-- Significant documentation
-
-**Tier 3: $10–50**
-- Minor bug fixes
-- Small features
-- Documentation improvements
-
-### How to Claim Bounty
-
-1. Look for issues labeled `bounty`
-2. Comment on issue to claim it
-3. Submit PR with fix/feature
-4. PR is reviewed and merged
-5. Bounty paid via USDC on Stellar
-
-### Bounty Rules
-
-- One person per bounty issue
-- Must be claimed before starting work
-- PR must be merged to receive bounty
-- Bounty amount determined by maintainers
-- Payment within 7 days of merge
 
 ## Community
 
